@@ -1,6 +1,16 @@
 export type Product = {
-  name: String
-  price: String
+  id: number
+  name: string
+  type: string
+  price: number
+  discount: number
+  count: number
+  poster: string
+}
+
+export type BasketProduct = {
+  name: string
+  price: number | undefined
 }
 
 export enum Discount {
@@ -10,19 +20,10 @@ export enum Discount {
 }
 
 export type ProductsResponse = {
+  [x: string]: any
   response: boolean
   error: string
-  products: [
-      {
-          id?: number
-          name?: string
-          type?: string
-          price?: number
-          discount?: number
-          count?: number
-          poster?: string
-      }
-  ]
+  products: Product[]
   page: number
   pages: number
 }

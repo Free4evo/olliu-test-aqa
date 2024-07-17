@@ -1,11 +1,19 @@
 import { Locator, Page, expect } from "@playwright/test"
 import { NavigationPage } from "./navigationPage"
-import { Discount, Product } from "../types/product"
+import { BasketProduct, Discount } from "../types/product"
 
 export class Basket extends NavigationPage {
 
   constructor(page: Page){
     super(page)
+  }
+
+  extractPrice(input: string): number | undefined {
+    const match = input.match(/\d+/)
+    if (match) {
+        return parseInt(match[0])
+    }
+    return undefined
   }
 
   async clearBasket(){
@@ -24,7 +32,7 @@ export class Basket extends NavigationPage {
   async addProductToBasket(itemCount: number, productCount: number, discount: Discount){
     await this.page.waitForLoadState('domcontentloaded')
     let products: Locator[] = []
-    let selectedProducts: Product[] = []
+    let selectedProducts: BasketProduct[] = []
 
     switch(discount){
       case Discount.DISCOUNT:
@@ -49,7 +57,7 @@ export class Basket extends NavigationPage {
         
         selectedProducts.push({
           name: await products[i].locator('.product_name').innerText(),
-          price: await products[i].locator('.product_price').innerText()
+          price: this.extractPrice(await products[i].locator('.product_price').innerText())
         }) 
   
         if (selectedProducts.length = productCount){
@@ -61,7 +69,7 @@ export class Basket extends NavigationPage {
     return selectedProducts
   }
 
-  async checkProductInBasketPopup(products: Product[]){
+  async checkProductInBasketPopup(products: BasketProduct[]){
     await this.page.waitForLoadState('domcontentloaded')
     let totalPrice: number = 0
     const basketItems = await this.page.locator('li.basket-item').all()

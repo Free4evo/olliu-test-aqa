@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "dotenv": "^16.4.5",
+    "jsonpath-plus": "^9.0.0",
     "node-html-parser": "^6.1.13",
     "playwright": "^1.45.1"
   }

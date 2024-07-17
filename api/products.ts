@@ -1,5 +1,5 @@
 import { APIRequestContext, APIResponse, expect} from '@playwright/test'
-import { Discount, ProductsResponse } from '../types/product'
+import { Discount, Product, ProductsResponse } from '../types/product'
 
 export class ProductsAPI {
 
@@ -11,22 +11,27 @@ export class ProductsAPI {
 
   async getProducts(discount: Discount){
     const form = new FormData()
-    switch(discount){
-      case Discount.DISCOUNT:
-        form.set('filters', 'search=&price-from=&price-to=&is-discount=on')
-        form.append('action', 'discount')
-      break
-      case Discount.ANY:
-        form.set('filters', 'search=&price-from=&price-to=')
-        form.append('action', '')
-      break
-    }
-    
+    form.set('filters', 'search=&price-from=&price-to=')
+    form.append('action', '')
     form.append('page', '1')
-    const products = await this.request.post('https://enotes.pointschool.ru/product/get', {
+    const products: APIResponse = await this.request.post('https://enotes.pointschool.ru/product/get', {
       multipart: form
     })
+    const parsedProducts: ProductsResponse = await products.json()
+    let parsedProductResponse: Product [] = []
 
-    return products.json()
+    switch(discount){
+      case Discount.ANY:
+        parsedProductResponse = parsedProducts.products
+      break
+      case Discount.DISCOUNT:
+        parsedProductResponse = parsedProducts.products.filter((product: Product) => product.discount != 0)
+      break
+      case Discount.USUAL:
+        parsedProductResponse = parsedProducts.products.filter((product: Product) => product.discount == 0)
+      break
+    }
+
+    return parsedProductResponse
   }
 }
